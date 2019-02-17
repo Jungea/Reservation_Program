@@ -1,12 +1,10 @@
 package reservation;
 
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,14 +17,16 @@ public class MyFrame extends JFrame {
 	int menu;
 
 	JPanel subPan = new JPanel();
-	JButton[] subButton = new JButton[3];
-	String[][] subMenuStr = { { "학과정보입력", "학과삭제", "메인메뉴돌아가기" }, { "학생정보입력", "학생삭제", "메인메뉴돌아가기" },
-			{ "교수정보입력", "교수삭제", "메인메뉴돌아가기" }, { "학번입력", "교수고유번호입력" } };
+	JButton[] subButton = new JButton[2];
+	String[][] subMenuStr = { { "학과정보입력", "학과삭제" }, { "학생정보입력", "학생삭제" }, { "교수정보입력", "교수삭제" },
+			{ "학번입력", "교수고유번호입력" } };
 	int sub;
 
 	JPanel resPan = new JPanel();
-	JButton[] resButton = new JButton[5];
-	String[][] resStr = { { "상담신청", "상담취소", "상담기록", "상담상세정보표시", "메인메뉴돌아가기" }, { "승인할상담선택", "상담상세정보표시", "메인메뉴돌아가기" } };
+	JButton[] resButton = new JButton[4];
+	String[][] resStr = { { "상담신청", "상담취소", "상담기록", "상담상세정보표시" }, { "승인할상담선택", "상담상세정보표시" } };
+
+	JPanel infoPan = new JPanel();
 
 	public MyFrame() {
 		setSize(1000, 750);
@@ -87,10 +87,13 @@ public class MyFrame extends JFrame {
 			});
 		}
 
+		infoPan.setBackground(Color.WHITE);
+		infoPan.setBounds(400, 0, 580, 700);
+
 		menuPan.setBounds(0, 0, 200, menuStr.length * 140);
 		add(menuPan);
 		add(subPan);
-
+		add(infoPan);
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -112,10 +115,20 @@ public class MyFrame extends JFrame {
 
 	public void show(int num) {
 		System.out.println("menu" + menu + "  sub" + sub);
-		if (menu == 3)
-			System.out.println(resStr[sub][num]);
-		else
+		switch (menu) {
+		case 0:
 			System.out.println(subMenuStr[menu][num]);
+			break;
+		case 1:
+			System.out.println(subMenuStr[menu][num]);
+			break;
+		case 2:
+			System.out.println(subMenuStr[menu][num]);
+			break;
+		case 3:
+			System.out.println("res"+num+" "+resStr[sub][num]);
+			break;
+		}
 	}
 
 	public void resUpdate(int num) {
