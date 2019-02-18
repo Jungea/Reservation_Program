@@ -1,15 +1,40 @@
 package reservation;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /*
  * 작성자: 정은애
- * 작성일: 2018.12.09.
- * 내용: hw6_2 상담 프로그램
+ * 작성일: 2018.12.10.
+ * 내용: hw6_5 학과 리스트 출력
  */
 
 import java.util.Scanner;
 
 public class Main {
-	public static void main(String[] args) {
+
+	public static Connection makeConnection() {
+		String url = "jdbc:mysql://localhost/projects?characterEncoding=UTF-8&serverTimezone=UTC"; // 데이터베이스 변경
+		Connection con = null;
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			System.out.println("데이터베이스 연결중 ...");
+			con = DriverManager.getConnection(url, "puser", "1234"); // 사용자 변경
+			System.out.println("데이터베이스 연결 성공");
+		} catch (ClassNotFoundException e) {
+			System.out.println("JDBC 드라이버를 찾지 못했습니다...");
+		} catch (SQLException e) {
+			System.out.println("데이터베이스 연결 실패");
+		}
+		return con;
+	}
+
+	public static void main(String[] args) throws SQLException {
+		Connection con = makeConnection();
+
 		Scanner scan = new Scanner(System.in);
 		System.out.println("다음 중 하나를 선택하시오.");
 		String data1;
@@ -18,6 +43,10 @@ public class Main {
 		int subMenu;
 		int menu;
 
+		String sql;
+		Statement stmt = con.createStatement();
+		ResultSet rs;
+
 		do {
 			System.out.print("\n---------------------------------------------");
 			System.out.print("\na)학과관리  b)학생관리  c)교수관리  d)상담관리  e)종료  ---> ");
@@ -25,7 +54,11 @@ public class Main {
 			mainMenu = scan.next();
 			switch (mainMenu) {
 			case "a":
-				System.out.println("전체 리스트 출력");
+				sql = "SELECT * FROM DEPARTMENT";
+				rs = stmt.executeQuery(sql);
+				while (rs.next()) {
+					System.out.println(rs.getString(1) + " " + rs.getString(2) + " " + rs.getString(3));
+				}
 
 				do {
 					System.out.print("\n1)학과정보입력  2)학과삭제  3)메인메뉴돌아가기 ---> ");
