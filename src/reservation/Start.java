@@ -3,7 +3,6 @@ package reservation;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
@@ -87,7 +86,9 @@ class MyFrame extends JFrame { // 예약프로그램
 			});
 		}
 
-		for (int i = 0; i < resButton.length; i++) {
+		for (
+
+				int i = 0; i < resButton.length; i++) {
 			resButton[i] = new JButton();
 
 			final int kk = i;
@@ -105,6 +106,7 @@ class MyFrame extends JFrame { // 예약프로그램
 		infoPan.setBounds(400, 0, 580, 700);
 
 		menuPan.setBounds(0, 0, 200, menuStr.length * 140);
+
 		add(menuPan);
 		add(subPan);
 		add(infoPan);
@@ -113,6 +115,9 @@ class MyFrame extends JFrame { // 예약프로그램
 	}
 
 	public void subUpdate(int num) { // 하위 메뉴 표시
+		if (num != 3)
+			Start.selectAll(num);
+
 		subPan.removeAll();
 		subPan.setLayout(new GridLayout(subMenuStr[num].length, 1));
 		for (int i = 0; i < subMenuStr[num].length; i++) {
@@ -147,7 +152,6 @@ class MyFrame extends JFrame { // 예약프로그램
 		System.out.println("menu" + menu + "  sub" + sub);
 		switch (menu) {
 		case 0:
-			Start.selectAll();
 			System.out.println(subMenuStr[menu][num]);
 			break;
 		case 1:
@@ -251,53 +255,48 @@ public class Start {
 	static Connection con = null;
 	static ConnectFrame frame;
 	static JTable table;
+	static String[] a = { "deptID", "deptName", "offiNum" };
+	static SqlTable deptTable = new SqlTable("department", a);
 
-	public static void selectAll() {
+	static String[] b = { "proID", "proName", "proPNum", "deptID" };
+	static SqlTable proTable = new SqlTable("professor", b);
 
-		Statement stmt;
-		String[] header = { "deptID", "deptName", "offiNum" };
+	static String[] e = { "stdID", "stdName", "stdPNum", "deptID" };
+	static SqlTable stdTable = new SqlTable("student", e);
+
+	static String[] c = { "resID", "resTime", "approve", "cancel", "resTitle", "stdID", "proID" };
+	static SqlTable resTable = new SqlTable("reservation", c);
+
+	static String[] d = { "resID", "resID", "startTime", "content" };
+	static SqlTable desTable = new SqlTable("resdescript", d);
+
+	public Start() {
+
+	}
+
+	public static void selectAll(int num) {
 		String[][] context = null;
+		String[] header = null;
 
-		int i = 0;
-
-		try {
-
-			stmt = con.createStatement();
-
-			ResultSet rs = stmt.executeQuery("SELECT * FROM department");
-
-			rs.last();
-			int nRecord = rs.getRow();
-			context = new String[nRecord][header.length];
-			rs.beforeFirst();
-
-			while (rs.next()) {
-				String id = rs.getString("deptID");
-				String name = rs.getString("deptName");
-				String offNum = rs.getString("offiNum");
-
-				context[i][0] = id;
-				context[i][1] = name;
-				context[i][2] = offNum;
-
-				System.out.println(id + " " + name + " " + offNum);
-
-				i++;
-
-			}
-
-		} catch (SQLException e) {
-
-			e.printStackTrace();
-
+		if (num == 0) {
+			header = deptTable.header;
+			context = deptTable.selectAll();
+		} else if (num == 1) {
+			header = stdTable.header;
+			context = stdTable.selectAll();
+		} else if (num == 2) {
+			header = proTable.header;
+			context = proTable.selectAll();
+		} else if (num == 3) {
+			header = resTable.header;
+			context = resTable.selectAll();
 		}
 
 		table = new JTable(context, header);
 
 		JScrollPane scrollPane = new JScrollPane(table);
+		frame.mf.infoPan.removeAll();
 		frame.mf.infoPan.add(scrollPane, BorderLayout.CENTER);
-		frame.mf.infoPan.repaint();
-		frame.mf.infoPan.revalidate();
 
 	}
 
