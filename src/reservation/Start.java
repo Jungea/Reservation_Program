@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -22,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 
 class MyFrame extends JFrame { // 예약프로그램
 
@@ -41,6 +44,8 @@ class MyFrame extends JFrame { // 예약프로그램
 	String[][] resStr = { { "상담신청", "상담취소", "상담기록", "상담상세정보표시" }, { "승인할상담선택", "상담상세정보표시" } };
 
 	JPanel infoPan = new JPanel(); // 데이터 표가 나타나는 부분
+
+	JPanel inserPan = new JPanel();
 
 	public MyFrame() {
 		setSize(1000, 750);
@@ -255,42 +260,25 @@ public class Start {
 	static Connection con = null;
 	static ConnectFrame frame;
 	static JTable table;
-	static String[] a = { "deptID", "deptName", "offiNum" };
-	static SqlTable deptTable = new SqlTable("department", a);
 
-	static String[] b = { "proID", "proName", "proPNum", "deptID" };
-	static SqlTable proTable = new SqlTable("professor", b);
+	static SqlTable[] sqlTable;
 
-	static String[] e = { "stdID", "stdName", "stdPNum", "deptID" };
-	static SqlTable stdTable = new SqlTable("student", e);
+	public static void makeTable() {
+		sqlTable = new SqlTable[5];
+		String[][] title = { { "deptID", "deptName", "offiNum" }, { "stdID", "stdName", "stdPNum", "deptID" },
+				{ "proID", "proName", "proPNum", "deptID" },
+				{ "resID", "resTime", "approve", "cancel", "resTitle", "stdID", "proID" },
+				{ "resID", "desID", "startTime", "content" } };
+		String[] tableName = { "department", "student", "professor", "reservation", "resdescript" };
 
-	static String[] c = { "resID", "resTime", "approve", "cancel", "resTitle", "stdID", "proID" };
-	static SqlTable resTable = new SqlTable("reservation", c);
-
-	static String[] d = { "resID", "resID", "startTime", "content" };
-	static SqlTable desTable = new SqlTable("resdescript", d);
-
-	public Start() {
-
+		for (int i = 0; i < sqlTable.length; i++) {
+			sqlTable[i] = new SqlTable(tableName[i], title[i]);
+		}
 	}
 
 	public static void selectAll(int num) {
-		String[][] context = null;
-		String[] header = null;
-
-		if (num == 0) {
-			header = deptTable.header;
-			context = deptTable.selectAll();
-		} else if (num == 1) {
-			header = stdTable.header;
-			context = stdTable.selectAll();
-		} else if (num == 2) {
-			header = proTable.header;
-			context = proTable.selectAll();
-		} else if (num == 3) {
-			header = resTable.header;
-			context = resTable.selectAll();
-		}
+		String[][] context = sqlTable[num].selectAll();
+		String[] header = sqlTable[num].header;
 
 		table = new JTable(context, header);
 
@@ -298,9 +286,56 @@ public class Start {
 		frame.mf.infoPan.removeAll();
 		frame.mf.infoPan.add(scrollPane, BorderLayout.CENTER);
 
+		makeInsertPan(num);
+
+		table.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				int row = table.getSelectedRow();
+				System.out.println(row + "행, 0열 : " + table.getValueAt(row, 0) + " 선택했음");
+			}
+		});
 	}
 
-	static Connection makeConnection() {
+	public static void makeInsertPan(int num) {
+		frame.mf.inserPan.removeAll();
+		int len = sqlTable[num].header.length;
+		frame.mf.inserPan.setLayout(new GridLayout(len, 2));
+		for (int i = 0; i < len; i++) {
+			frame.mf.inserPan.add(new JLabel(sqlTable[num].header[i]));
+			frame.mf.inserPan.add(new JTextField());
+		}
+
+		frame.mf.infoPan.add(frame.mf.inserPan, BorderLayout.SOUTH);
+	}
+
+	public static Connection makeConnection() {
 
 		String url = "jdbc:mysql://localhost/projects?characterEncoding=UTF-8&serverTimezone=UTC"; // 데이터베이스 변경
 		Connection con = null;
@@ -311,6 +346,7 @@ public class Start {
 			frame.loding();
 			con = DriverManager.getConnection(url, "puser", "1234"); // 사용자 변경
 			System.out.println("데이터베이스 연결 성공");
+			makeTable();
 			frame.success();
 		} catch (ClassNotFoundException e) {
 			System.out.println("JDBC 드라이버를 찾지 못했습니다...");
