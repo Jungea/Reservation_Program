@@ -28,6 +28,8 @@ import javax.swing.JTextField;
 //title.setFont(new Font("나눔고딕", Font.BOLD, 30));
 
 public class Ver2 extends JFrame {
+	int who = -1; // 0 학생/ 1교수
+
 	JTextField idField;
 
 	JTextField pField;
@@ -134,12 +136,12 @@ public class Ver2 extends JFrame {
 				while (MySQL.con == null) // mysql 연결 중
 					;
 				try {
-					MySQL.login(idField.getText(), new String(passField.getPassword()));
+					who = MySQL.login(idField.getText(), new String(passField.getPassword()));
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				System.out.println(idField.getText() + " " + new String(passField.getPassword()));
+				System.out.println(who + " " + idField.getText() + " " + new String(passField.getPassword()));
 			}
 		});
 		center(loginButton, 410, 300, 50);
@@ -196,21 +198,37 @@ class MySQL {
 	}
 
 	// 학생만 로그인 가능
-	public static void login(String id, String pass) throws SQLException {
+	public static int login(String id, String pass) throws SQLException {
 		stmt = con.createStatement();
-		String sql = "SELECT * FROM student WHERE stdid = '" + id + "' AND password = '" + pass + "'";
+		String sql = "SELECT * FROM student WHERE stdid = '" + id + "' AND stdPass = '" + pass + "'";
 		ResultSet rs = stmt.executeQuery(sql);
 
 		int count = 0;
 		while (rs.next())
 			count++;
 
-		if (count == 1)
-			System.out.println("로그인 성공");
-		else
-			System.out.println("로그인 실패");
+		if (count == 1) {
+			System.out.println("학생 로그인 성공");
+			return 0;
+		}
+
+		sql = "SELECT * FROM professor WHERE proid = '" + id + "' AND proPass = '" + pass + "'";
+		rs = stmt.executeQuery(sql);
+
+		count = 0;
+		while (rs.next())
+			count++;
+
+		if (count == 1) {
+			System.out.println("교수 로그인 성공");
+			return 1;
+		}
+
+		System.out.println("로그인 실패");
 
 		stmt.close();
+		return -1;
+
 	}
 
 }
